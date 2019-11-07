@@ -1,15 +1,17 @@
 import Vue from "nativescript-vue";
 
-import Home from "./components/Home";
+import App from "./components/App";
+
+import store from './store'
 
 new Vue({
-
+    store,
     template: `
         <Frame>
-            <Home />
+            <App />
         </Frame>`,
 
     components: {
-        Home
+        App
     }
 }).$start();

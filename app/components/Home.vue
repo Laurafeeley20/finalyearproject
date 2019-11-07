@@ -1,40 +1,51 @@
 <template>
     <Page class="page">
         <ActionBar class="action-bar">
-            <Label class="action-bar-title" text="Home"></Label>
+            <Label :text="username" @tap="$refs.drawer.nativeView.showDrawer()" />
         </ActionBar>
-
-        <GridLayout>
-            <Label class="info" horizontalAlignment="center" verticalAlignment="center">
-                <FormattedString>
-                    <Span :text="message"/>
-                </FormattedString>
-            </Label>
-        </GridLayout>
+        <Label text="Navigation Menu"></Label>
+        <!-- <RadSideDrawer ref="drawer">
+            <StackLayout ~drawerContent class="sideStackLayout">
+                <StackLayout class="sideTitleStackLayout">
+                    <Label text="Navigation Menu"></Label>
+                    <Label text="Bookings" @tap="redirect"></Label>
+                </StackLayout>
+                <Label text="Close Drawer" color="lightgray" padding="10" style="horizontal-align: center"></Label>
+            </StackLayout>
+            <StackLayout ~mainContent>
+                <Label text="MAIN CONTENT GOES HERE"></Label>
+            </StackLayout>
+        </RadSideDrawer> -->
     </Page>
 </template>
 
 <script>
+
     export default {
-        computed: {
-            message() {
-                return "Home Component";
+        name: 'Home',
+        data() {
+            return {
+                isAdmin: false
             }
-        }
-    };
+        },
+        computed: {
+            username(){
+                return this.$store.getters['username']
+            }
+        },
+        methods: {
+            redirect() {
+                this.$navigateTo(Booking, { clearHistory: true})
+            }
+        },
+        created () {
+            this.$store.dispatch('getUserInformation')
+        },
+    }
 </script>
 
-<style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
-
-    // Custom styles
-    .fa {
-        color: $accent-dark;
-    }
-
-    .info {
-        font-size: 20;
-    }
+<style lang="scss" scoped>
+.action-bar{background:#25325c; color:white;}
+.subheading{opacity: 0.6; font-size: 14; padding-left:15; font-weight: 500; width: 100%;}
+.heading{ padding-left: 15; font-weight: 300; font-size: 16;}
 </style>
