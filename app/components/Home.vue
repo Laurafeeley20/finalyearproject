@@ -7,7 +7,6 @@
         <GridLayout>
             <Label class="info" horizontalAlignment="center" verticalAlignment="center">
                 <FormattedString>
-                    <Span class="fa" text.decode="&#xf135; "/>
                     <Span :text="message"/>
                 </FormattedString>
             </Label>
@@ -19,7 +18,7 @@
     export default {
         computed: {
             message() {
-                return "Blank {N}-Vue app";
+                return "Home Component";
             }
         }
     };
