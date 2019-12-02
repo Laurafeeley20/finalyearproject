@@ -11,7 +11,19 @@ export default new Vuex.Store({
   state: {
     isLoggedIn: false,
     accessToken: '',
-    username: ''
+    currentUser: {
+      id: '',
+      name: '',
+      isAdmin: ''
+    },
+    firstUserBooking: {
+      user_id: '',
+      booking_type: '',
+      booking_date: '',
+      booking_time: ''
+    },
+    bookings: [],
+    userBookings: []
   },
   getters: {
     getUserAccessToken: state => {
@@ -21,7 +33,19 @@ export default new Vuex.Store({
       return state.isLoggedIn
     },
     username: state => {
-      return state.username
+      return state.currentUser.name
+    },
+    isAdmin: state => {
+      return state.currentUser.isAdmin
+    },
+    firstUserBooking: state => {
+      return `${state.firstUserBooking.booking_type === 'Private' ? '1-on-1 with Christopher Shannon' : state.firstUserBooking.booking_type} - ${state.firstUserBooking.booking_date} @ ${state.firstUserBooking.booking_time}`
+    },
+    bookings: state => {
+      return state.bookings
+    },
+    allBookings: state => {
+      return state.allBookings
     }
   },
   mutations: {
@@ -32,7 +56,21 @@ export default new Vuex.Store({
       state.isLoggedIn = data
     },
     setUserInformation(state, data){
-      state.username = data
+      state.currentUser.id = data.id
+      state.currentUser.name = data.name
+      state.currentUser.isAdmin = data.isAdmin
+    },
+    setFirstUserBooking(state, data){
+      state.firstUserBooking.user_id = data[0].user_id
+      state.firstUserBooking.booking_date = data[0].date
+      state.firstUserBooking.booking_time = data[0].time
+      state.firstUserBooking.booking_type = data[0].booking_type
+    },
+    setUserBookings(state, data){
+      state.bookings = data
+    },
+    setAllBookings(state, data){
+      state.bookings = data
     }
   },
   actions: {
@@ -52,16 +90,40 @@ export default new Vuex.Store({
         })
       })
     },
-    getUserInformation({commit, state},){
+    getUserInformation({commit, state, dispatch},){
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + state.accessToken
 
       axios.get('http://127.0.0.1:8888/example-project/public/api/user')
         .then((response) => {
-          commit('setUserInformation', response.data.name)
+          commit('setUserInformation', response.data)
+          if (response.data.isAdmin === 1) {
+            dispatch('getAllBookingsForAdmin')
+          } else {
+            dispatch('getUserBookings', response.data.id)
+          }
         })
         .catch((error) => {
           commit('setUserInformation', error.response.status)
         })
+    },
+    getUserBookings({commit}, data){
+      axios.get('http://127.0.0.1:8888/example-project/public/api/bookings/' + data)
+      .then((response) => {
+        commit('setUserBookings', response.data)
+        commit('setFirstUserBooking', response.data)
+      })
+      .catch((error) => {
+        commit('setUserBookings', error.response.status)
+      })
+    },
+    getAllBookingsForAdmin({commit}){
+      axios.get('http://127.0.0.1:8888/example-project/public/api/bookings')
+      .then((response) => {
+        commit('setAllBookings', response.data)
+      })
+      .catch((error) => {
+        commit('setUserBookings', error.response.status)
+      })
     }
   }
 });
