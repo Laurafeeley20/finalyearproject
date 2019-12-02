@@ -12,6 +12,9 @@
 import Home from './Home.vue'
 
   export default {
+    components: {
+      Home,
+    },
     data() {
       return {
         username: '',
@@ -22,7 +25,7 @@ import Home from './Home.vue'
       login() {
         this.$store.dispatch('getUserAccessToken', {username: 'cregan@example.com', password: 'secret'})
           .then(() => {
-            this.$navigateTo(Home, { clearHistory: true})
+            this.$navigateTo(Home, {clearHistory: true})
           })
       }
     },
