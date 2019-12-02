@@ -3,49 +3,138 @@
         <ActionBar class="action-bar">
             <Label :text="username" @tap="$refs.drawer.nativeView.showDrawer()" />
         </ActionBar>
-        <Label text="Navigation Menu"></Label>
-        <!-- <RadSideDrawer ref="drawer">
-            <StackLayout ~drawerContent class="sideStackLayout">
-                <StackLayout class="sideTitleStackLayout">
-                    <Label text="Navigation Menu"></Label>
-                    <Label text="Bookings" @tap="redirect"></Label>
-                </StackLayout>
-                <Label text="Close Drawer" color="lightgray" padding="10" style="horizontal-align: center"></Label>
-            </StackLayout>
-            <StackLayout ~mainContent>
-                <Label text="MAIN CONTENT GOES HERE"></Label>
-            </StackLayout>
-        </RadSideDrawer> -->
+        <StackLayout v-if="isAdmin">
+                <TabView id="tabViewContainer">
+                    <TabViewItem title="Home">
+                        <StackLayout>
+                            <Label class="h1 title">Todays Schedule: </Label>
+                            <CardView class="card" elevation="40" radius="10" ios:shadowRadius="3" v-if="bookings.length === 0">
+                                <StackLayout class="card-layout">
+                                    <Label class="h2">No clients scheduled for today</Label>
+                                </StackLayout>
+                            </CardView> 
+                            <CardView class="card" elevation="40" radius="10" ios:shadowRadius="3" v-else>
+                                <StackLayout class="card-layout">
+                                    <ListView for="(booking, index) in bookings" :key="index">
+                                        <v-template>
+                                            <Label class="h3">{{ booking.booking_type }} - {{ booking.user_id }} @ {{ booking.time }}</Label>
+                                        </v-template>
+                                    </ListView>
+                                    <!-- <RadCalendar :eventSource="events" eventsViewMode="Inline" viewMode="Day"/> -->
+                                </StackLayout>
+                            </CardView> 
+                        </StackLayout>
+                    </TabViewItem>
+                    <TabViewItem title="Manage Bookings">
+                        <StackLayout>
+                            <Button text="Day" @tap="changeToDayView" />
+                            <RadCalendar :eventSource="events" eventsViewMode="Inline" viewMode="Month"/>
+                        </StackLayout>
+                    </TabViewItem>
+                    <TabViewItem title="Manage Classes">
+                        <StackLayout>
+                            <Label text="Second Tab" textWrap="true" class="m-15 h2 text-left" color="blue" />
+                        </StackLayout>
+                    </TabViewItem>
+                </TabView>
+        </StackLayout>
+        <StackLayout v-else>
+                <TabView id="tabViewContainer">
+                    <TabViewItem title="Home">
+                        <StackLayout>
+                            <CardView class="card" elevation="40" radius="10" ios:shadowRadius="3" @tap="showAllBookings">
+                                <StackLayout class="card-layout">
+                                    <Label class="h2">You have {{ bookings.length}} bookings</Label>
+                                    <Label class="body" textWrap="true">Next up: {{ firstBooking }} </Label>
+                                </StackLayout>
+                            </CardView> 
+                        </StackLayout>
+                    </TabViewItem>
+                    <TabViewItem title="Classes">
+                        <StackLayout>
+                            <Label text="Second Tab" textWrap="true" class="m-15 h2 text-left" color="blue" />
+                        </StackLayout>
+                    </TabViewItem>
+                </TabView>
+        </StackLayout>
+        
     </Page>
 </template>
 
 <script>
+    import ShowAllBookings from './general/ShowAllBookings.vue'
+
+    import { CalendarEvent } from 'nativescript-ui-calendar';
 
     export default {
         name: 'Home',
+        components: {
+        },
         data() {
             return {
-                isAdmin: false
+                events: null
             }
         },
         computed: {
             username(){
                 return this.$store.getters['username']
+            },
+            firstBooking(){
+                return this.$store.getters['firstUserBooking']
+            },
+            bookings(){
+                return this.$store.getters['bookings']
+            },
+            isAdmin(){
+                return this.$store.getters['isAdmin']
             }
         },
         methods: {
-            redirect() {
-                this.$navigateTo(Booking, { clearHistory: true})
+            showAllBookings(){
+                this.$navigateTo(ShowAllBookings)
+            },
+            changeToDayView(){
+                this.viewMode = CalendarViewMode.Day;
             }
         },
         created () {
-            this.$store.dispatch('getUserInformation')
+            this.$store.dispatch('getUserInformation');
+            let date = new Date()
+            let eventitles = ['Title 1', 'Title 2', 'Title 3']
+            let eventss = []
+
+            var j = 1
+
+            for (let i = 0; i < eventitles.length; i++){
+                var startDate = new Date(date.getFullYear(), date.getMonth(), j * 2, 12);
+                var endDate = new Date(date.getFullYear(), date.getMonth(), j * 2, 13);
+                var event = new CalendarEvent(eventitles[i], startDate, endDate);
+                eventss.push(event)
+                j++
+            }
+
+            this.events = eventss
         },
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .action-bar{background:#25325c; color:white;}
 .subheading{opacity: 0.6; font-size: 14; padding-left:15; font-weight: 500; width: 100%;}
 .heading{ padding-left: 15; font-weight: 300; font-size: 16;}
+.card {
+    background-color: #fff;
+    color: #4d4d4d;
+    margin: 15 15 0;
+}
+.title{
+    padding-top: 10;
+    padding-left: 20;
+}
+.card-layout {
+    padding: 20;
+}
+.card-layout .h1 {
+    margin-bottom: 15;
+}
 </style>
