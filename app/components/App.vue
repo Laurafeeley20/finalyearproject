@@ -23,7 +23,7 @@ import Home from './Home.vue'
     },
     methods: {
       login() {
-        this.$store.dispatch('getUserAccessToken', {username: 'cregan@example.com', password: 'secret'})
+        this.$store.dispatch('getUserAccessToken', {username: 'admin@csfitness.com', password: 'secret'})
           .then(() => {
             this.$navigateTo(Home, {clearHistory: true})
           })

@@ -3,8 +3,9 @@
         <ActionBar class="action-bar">
             <Label :text="username" @tap="$refs.drawer.nativeView.showDrawer()" />
         </ActionBar>
+        <ScrollView>
         <StackLayout v-if="isAdmin">
-                <TabView id="tabViewContainer">
+                <TabView id="admin">
                     <TabViewItem title="Home">
                         <StackLayout>
                             <Label class="h1 title">Todays Schedule: </Label>
@@ -20,20 +21,19 @@
                                             <Label class="h3">{{ booking.booking_type }} - {{ booking.user_id }} @ {{ booking.time }}</Label>
                                         </v-template>
                                     </ListView>
-                                    <!-- <RadCalendar :eventSource="events" eventsViewMode="Inline" viewMode="Day"/> -->
                                 </StackLayout>
                             </CardView> 
                         </StackLayout>
                     </TabViewItem>
                     <TabViewItem title="Manage Bookings">
                         <StackLayout>
-                            <Button text="Day" @tap="changeToDayView" />
+                            <Button text="Day" @tap="changePage" />
                             <RadCalendar :eventSource="events" eventsViewMode="Inline" viewMode="Month"/>
                         </StackLayout>
                     </TabViewItem>
-                    <TabViewItem title="Manage Classes">
+                    <TabViewItem title="Create Booking">
                         <StackLayout>
-                            <Label text="Second Tab" textWrap="true" class="m-15 h2 text-left" color="blue" />
+                            <Label class="h2">No clients scheduled for today</Label>
                         </StackLayout>
                     </TabViewItem>
                 </TabView>
@@ -52,16 +52,19 @@
                     </TabViewItem>
                     <TabViewItem title="Classes">
                         <StackLayout>
+                            <Button text="Click me to change page" @tap="showAllBookings" />
                             <Label text="Second Tab" textWrap="true" class="m-15 h2 text-left" color="blue" />
                         </StackLayout>
                     </TabViewItem>
                 </TabView>
         </StackLayout>
+        </ScrollView>
         
     </Page>
 </template>
 
 <script>
+    import CreateBooking from './CreateBooking.vue'
     import ShowAllBookings from './general/ShowAllBookings.vue'
 
     import { CalendarEvent } from 'nativescript-ui-calendar';
@@ -93,8 +96,8 @@
             showAllBookings(){
                 this.$navigateTo(ShowAllBookings)
             },
-            changeToDayView(){
-                this.viewMode = CalendarViewMode.Day;
+            changePage(){
+                this.$navigateTo(CreateBooking)
             }
         },
         created () {

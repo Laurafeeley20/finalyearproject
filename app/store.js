@@ -117,7 +117,7 @@ export default new Vuex.Store({
       })
     },
     getAllBookingsForAdmin({commit}){
-      axios.get('http://127.0.0.1:8888/example-project/public/api/bookings')
+      axios.get('http://127.0.0.1:8888/example-project/public/api/todaysbookings')
       .then((response) => {
         commit('setAllBookings', response.data)
       })
