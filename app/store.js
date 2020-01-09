@@ -23,7 +23,8 @@ export default new Vuex.Store({
       booking_time: ''
     },
     bookings: [],
-    userBookings: []
+    userBookings: [],
+    allUsers: []
   },
   getters: {
     getUserAccessToken: state => {
@@ -46,6 +47,9 @@ export default new Vuex.Store({
     },
     allBookings: state => {
       return state.allBookings
+    },
+    allUsers: state => {
+      return state.allUsers
     }
   },
   mutations: {
@@ -71,10 +75,14 @@ export default new Vuex.Store({
     },
     setAllBookings(state, data){
       state.bookings = data
+    },
+    setAllUsers(state, data){
+      state.allUsers = data
     }
   },
   actions: {
     getUserAccessToken({commit}, data){
+      console.log(data.username)
       return new Promise(function(resolve, reject){
         axios.post('http://127.0.0.1:8888/example-project/public/api/login', {
           username: data.username,
@@ -98,6 +106,7 @@ export default new Vuex.Store({
           commit('setUserInformation', response.data)
           if (response.data.isAdmin === 1) {
             dispatch('getAllBookingsForAdmin')
+            dispatch('getAllUsersForAdmin')
           } else {
             dispatch('getUserBookings', response.data.id)
           }
@@ -124,6 +133,30 @@ export default new Vuex.Store({
       .catch((error) => {
         commit('setUserBookings', error.response.status)
       })
+    },
+    getAllUsersForAdmin({commit}){
+      axios.get('http://127.0.0.1:8888/example-project/public/api/users')
+      .then((response) => {
+        commit('setAllUsers', response.data)
+      })
+      .catch((error) => {
+        commit('setAllUsers', error.response.status)
+      })
+    },
+    createNewBooking(data){
+        axios.post('http://127.0.0.1:8888/example-project/public/api/bookings', {
+          username: data.username,
+          date: data.date,
+          booking_type: data.booking_type,
+          time: data.time
+        })
+            .then((response) => {
+              // dispatch('getAllBookingsForAdmin')
+              alert('Success')
+            })
+            .catch((error) => {
+              console.log(error)
+        })
     }
   }
 });

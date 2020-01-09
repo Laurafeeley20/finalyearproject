@@ -18,7 +18,7 @@
                                 <StackLayout class="card-layout">
                                     <ListView for="(booking, index) in bookings" :key="index">
                                         <v-template>
-                                            <Label class="h3">{{ booking.booking_type }} - {{ booking.user_id }} @ {{ booking.time }}</Label>
+                                            <Label class="h3">{{ booking.booking_type }} - {{ booking.username}} @ {{ booking.time }}</Label>
                                         </v-template>
                                     </ListView>
                                 </StackLayout>
@@ -33,7 +33,13 @@
                     </TabViewItem>
                     <TabViewItem title="Create Booking">
                         <StackLayout>
-                            <Label class="h2">No clients scheduled for today</Label>
+                            <ListPicker class="picker" :items="getAllUsersForAdmin" v-model="selectedUser" />
+                            <!-- <TimePicker :hour="selectedHour" :minute="selectedMinute" /> -->
+                            <DatePickerField @dateChange="onDateChange" class="picker other-class" hint="select date"></DatePickerField>
+                            <TimePickerField @timeChange="onTimeChange" class="picker other-class" hint="select time"></TimePickerField>
+                            <!-- <TextField class="input-inner" hint="Enter the user id" /> -->
+                            <Button text="Create new booking" @tap="createBooking" class="button"/>
+                            <Button text="Clear" @tap="clearCreateBookingForm" class="button-clear"/>
                         </StackLayout>
                     </TabViewItem>
                 </TabView>
@@ -64,6 +70,9 @@
 </template>
 
 <script>
+import moment from 'moment'
+import axios from 'axios'
+
     import CreateBooking from './CreateBooking.vue'
     import ShowAllBookings from './general/ShowAllBookings.vue'
 
@@ -75,7 +84,11 @@
         },
         data() {
             return {
-                events: null
+                events: null,
+                listOfItems: ['Please select a user', 'Laura Feeley', 'Ciaran Cregan'],
+                selectedUser: '',
+                selectedDate: '',
+                selectedTime: '',
             }
         },
         computed: {
@@ -90,6 +103,16 @@
             },
             isAdmin(){
                 return this.$store.getters['isAdmin']
+            },
+            getAllUsersForAdmin(){
+                let users =  this.$store.getters['allUsers']
+                let userName = ['Please select a user']
+                for (let i = 0; i < users.length; i++){
+                    userName.push(users[i].name)
+                }
+                console.log(userName)
+                this.listOfItems = userName;
+                return userName
             }
         },
         methods: {
@@ -98,6 +121,38 @@
             },
             changePage(){
                 this.$navigateTo(CreateBooking)
+            },
+            createBooking(){
+                if (this.selectedUser === '' || this.selectedDate === '' || this.selectedTime === ''){
+                    alert('Please enter date to create a booking')
+                } else {
+                    axios.post('http://127.0.0.1:8888/example-project/public/api/bookings', {
+                    username: this.listOfItems[this.selectedUser],
+                    date: this.selectedDate,
+                    booking_type: 'Private',
+                    time: this.selectedTime
+                    })
+                        .then((response) => {
+                        this.selectedUser = 'Please select a user'
+                        })
+                        .catch((error) => {
+                        alert('Something went wrong - try again')
+                    })
+                    // console.log(this.listOfItems[this.selectedUser])
+                    // console.log(this.selectedDate)
+                    // console.log(this.selectedTime)
+                }
+            },
+            clearCreateBookingForm(){
+                this.selectedUser = ''
+                this.selectedDatec = ''
+                this.selectedTime = ''
+            },
+            onDateChange: function(args) {
+                this.selectedDate = moment(args.value).format('DD/MM/YYYY');
+            },
+            onTimeChange: function(args) {
+                this.selectedTime = moment(args.value).format('h:mm');
             }
         },
         created () {
@@ -140,4 +195,53 @@
 .card-layout .h1 {
     margin-bottom: 15;
 }
+.input-field {
+		margin-bottom: 25;
+	}
+    .picker{
+        width: 90%;
+        text-align: center;
+    }
+    .other-class{
+        margin: 10 0;
+        padding: 10;
+        border-width: 2;
+    border-color: #4d4d4d;
+    border-radius: 5;
+    }
+.form{
+    margin-top: 2;
+}
+	.input {
+        background: white;
+        margin: 10 0;
+        padding: 10;
+		font-size: 18;
+	}
+
+    .input-inner {
+        width: 90%;
+        background: lightgrey;
+        margin: 10 0;
+        padding: 10;
+		font-size: 18;
+	}
+
+	.input-field .input {
+		font-size: 54;
+	}
+    .button{
+      width: 90%;
+      background: black;
+      color: white;
+      margin: 10 0;
+      padding: 20;
+    }
+    .button-clear{
+      width: 90%;
+      background: red;
+      color: white;
+      margin: 10 0;
+      padding: 20;
+    }
 </style>
